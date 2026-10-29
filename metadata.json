@@ -1,0 +1,6 @@
+{
+  "name": "Nyumba Smart",
+  "description": "An elegant, high-fidelity property management portal for landlords and tenants featuring robust authentication, a records tracker, complaints desk, in-app messaging, billing, and a dedicated system developer control panel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

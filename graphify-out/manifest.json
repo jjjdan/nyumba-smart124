@@ -1,0 +1,357 @@
+{
+  ".claude/settings.json": {
+    "mtime": 1783581381.9999275,
+    "ast_hash": "4d9991525b707d06de83fccf204abfee",
+    "semantic_hash": "4d9991525b707d06de83fccf204abfee"
+  },
+  "metadata.json": {
+    "mtime": 1781596776.0,
+    "ast_hash": "371d2eb6fc1f2b15eef7365d7fa8cf89",
+    "semantic_hash": "371d2eb6fc1f2b15eef7365d7fa8cf89"
+  },
+  "nyumba-backend/nyumba-backend/package.json": {
+    "mtime": 1781502521.0,
+    "ast_hash": "a31c81e8403dc428f95e875af2805030",
+    "semantic_hash": "a31c81e8403dc428f95e875af2805030"
+  },
+  "nyumba-backend/nyumba-backend/src/config/database.js": {
+    "mtime": 1781361871.0,
+    "ast_hash": "724fee76a61c3a39d784028731e8276f",
+    "semantic_hash": "724fee76a61c3a39d784028731e8276f"
+  },
+  "nyumba-backend/nyumba-backend/src/config/schema.sql": {
+    "mtime": 1781361840.0,
+    "ast_hash": "f42a664ddb1197dce45026621acb94b7",
+    "semantic_hash": "f42a664ddb1197dce45026621acb94b7"
+  },
+  "nyumba-backend/nyumba-backend/src/config/seedAdmin.js": {
+    "mtime": 1781502517.0,
+    "ast_hash": "4a53bb21da7b8154d937836034fc152c",
+    "semantic_hash": "4a53bb21da7b8154d937836034fc152c"
+  },
+  "nyumba-backend/nyumba-backend/src/controllers/adminController.js": {
+    "mtime": 1781380465.0,
+    "ast_hash": "d1ab1fddbbebd2b06fed03d03ae7e1fe",
+    "semantic_hash": "d1ab1fddbbebd2b06fed03d03ae7e1fe"
+  },
+  "nyumba-backend/nyumba-backend/src/controllers/authController.js": {
+    "mtime": 1781952309.0,
+    "ast_hash": "a0e0d8f5b33ce0a2d8248a6d10d37953",
+    "semantic_hash": "a0e0d8f5b33ce0a2d8248a6d10d37953"
+  },
+  "nyumba-backend/nyumba-backend/src/controllers/complaintsController.js": {
+    "mtime": 1781380410.0,
+    "ast_hash": "385279456fdc22f1cc54b220062f9b62",
+    "semantic_hash": "385279456fdc22f1cc54b220062f9b62"
+  },
+  "nyumba-backend/nyumba-backend/src/controllers/messagesController.js": {
+    "mtime": 1781380439.0,
+    "ast_hash": "e43866c398ad8fc567bbb21fc4166070",
+    "semantic_hash": "e43866c398ad8fc567bbb21fc4166070"
+  },
+  "nyumba-backend/nyumba-backend/src/controllers/paymentsController.js": {
+    "mtime": 1781380391.0,
+    "ast_hash": "32fa6c72c7227f54cbac3152d75664e1",
+    "semantic_hash": "32fa6c72c7227f54cbac3152d75664e1"
+  },
+  "nyumba-backend/nyumba-backend/src/controllers/propertiesController.js": {
+    "mtime": 1781361941.0,
+    "ast_hash": "a60cb3c750300dc67998e8bfab810fd1",
+    "semantic_hash": "a60cb3c750300dc67998e8bfab810fd1"
+  },
+  "nyumba-backend/nyumba-backend/src/middleware/auth.js": {
+    "mtime": 1781361880.0,
+    "ast_hash": "f51ff594d3c2bfb6ec319deecf314536",
+    "semantic_hash": "f51ff594d3c2bfb6ec319deecf314536"
+  },
+  "nyumba-backend/nyumba-backend/src/middleware/errorHandler.js": {
+    "mtime": 1781361886.0,
+    "ast_hash": "c7a5550d236366653c44f3c5ae765ecd",
+    "semantic_hash": "c7a5550d236366653c44f3c5ae765ecd"
+  },
+  "nyumba-backend/nyumba-backend/src/routes/index.js": {
+    "mtime": 1781415141.0,
+    "ast_hash": "07f631bf57b7c02301b8029c5ba841c8",
+    "semantic_hash": "07f631bf57b7c02301b8029c5ba841c8"
+  },
+  "nyumba-backend/nyumba-backend/src/server.js": {
+    "mtime": 1781960920.0,
+    "ast_hash": "87e16d52ab8ef53b62df749cc7ea65ac",
+    "semantic_hash": "87e16d52ab8ef53b62df749cc7ea65ac"
+  },
+  "nyumba-backend/nyumba-backend/src/services/momoService.js": {
+    "mtime": 1781380330.0,
+    "ast_hash": "52d41fa722d5b5c6ef101f7045356cfb",
+    "semantic_hash": "52d41fa722d5b5c6ef101f7045356cfb"
+  },
+  "nyumba-backend/nyumba-backend/src/services/smsService.js": {
+    "mtime": 1781380344.0,
+    "ast_hash": "d715d09323a1adcc450eea1455cdea1d",
+    "semantic_hash": "d715d09323a1adcc450eea1455cdea1d"
+  },
+  "nyumba-backend/package.json": {
+    "mtime": 1784138140.8663008,
+    "ast_hash": "dd3b5453263709dd22dac17b489a524c",
+    "semantic_hash": ""
+  },
+  "nyumba-backend/src/config/database.js": {
+    "mtime": 1781962795.0,
+    "ast_hash": "724fee76a61c3a39d784028731e8276f",
+    "semantic_hash": "724fee76a61c3a39d784028731e8276f"
+  },
+  "nyumba-backend/src/config/schema.sql": {
+    "mtime": 1784138089.7668219,
+    "ast_hash": "ae649331c5f0fd784ba3afb65d6fa712",
+    "semantic_hash": ""
+  },
+  "nyumba-backend/src/config/seedAdmin.js": {
+    "mtime": 1781962795.0,
+    "ast_hash": "4a53bb21da7b8154d937836034fc152c",
+    "semantic_hash": "4a53bb21da7b8154d937836034fc152c"
+  },
+  "nyumba-backend/src/controllers/adminController.js": {
+    "mtime": 1781962795.0,
+    "ast_hash": "d1ab1fddbbebd2b06fed03d03ae7e1fe",
+    "semantic_hash": "d1ab1fddbbebd2b06fed03d03ae7e1fe"
+  },
+  "nyumba-backend/src/controllers/authController.js": {
+    "mtime": 1781962795.0,
+    "ast_hash": "a0e0d8f5b33ce0a2d8248a6d10d37953",
+    "semantic_hash": "a0e0d8f5b33ce0a2d8248a6d10d37953"
+  },
+  "nyumba-backend/src/controllers/complaintsController.js": {
+    "mtime": 1781962795.0,
+    "ast_hash": "385279456fdc22f1cc54b220062f9b62",
+    "semantic_hash": "385279456fdc22f1cc54b220062f9b62"
+  },
+  "nyumba-backend/src/controllers/messagesController.js": {
+    "mtime": 1781962795.0,
+    "ast_hash": "e43866c398ad8fc567bbb21fc4166070",
+    "semantic_hash": "e43866c398ad8fc567bbb21fc4166070"
+  },
+  "nyumba-backend/src/controllers/paymentsController.js": {
+    "mtime": 1784139158.9660006,
+    "ast_hash": "2973ff58aed26cac037de66e932c3bd0",
+    "semantic_hash": ""
+  },
+  "nyumba-backend/src/controllers/propertiesController.js": {
+    "mtime": 1781962795.0,
+    "ast_hash": "a60cb3c750300dc67998e8bfab810fd1",
+    "semantic_hash": "a60cb3c750300dc67998e8bfab810fd1"
+  },
+  "nyumba-backend/src/middleware/auth.js": {
+    "mtime": 1781962795.0,
+    "ast_hash": "f51ff594d3c2bfb6ec319deecf314536",
+    "semantic_hash": "f51ff594d3c2bfb6ec319deecf314536"
+  },
+  "nyumba-backend/src/middleware/errorHandler.js": {
+    "mtime": 1781962795.0,
+    "ast_hash": "c7a5550d236366653c44f3c5ae765ecd",
+    "semantic_hash": "c7a5550d236366653c44f3c5ae765ecd"
+  },
+  "nyumba-backend/src/routes/index.js": {
+    "mtime": 1784138132.8147364,
+    "ast_hash": "1f74765b236090b57e08a697f4e5265d",
+    "semantic_hash": ""
+  },
+  "nyumba-backend/src/server.js": {
+    "mtime": 1784138138.753761,
+    "ast_hash": "42b3dec71412819abeeb14767009937d",
+    "semantic_hash": ""
+  },
+  "nyumba-backend/src/services/smsService.js": {
+    "mtime": 1784138123.6116982,
+    "ast_hash": "6112f4ea1e081ca026c4adeac84679b2",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1781596776.0,
+    "ast_hash": "649e18e0e07d63099e2c7f9a547e7375",
+    "semantic_hash": "649e18e0e07d63099e2c7f9a547e7375"
+  },
+  "src/App.tsx": {
+    "mtime": 1784138431.1919763,
+    "ast_hash": "a4f2c41f24b29b5dacda21f563dc6549",
+    "semantic_hash": ""
+  },
+  "src/api/admin.ts": {
+    "mtime": 1781596764.0,
+    "ast_hash": "da633b8d76be6febf3f0f76590f67e15",
+    "semantic_hash": "da633b8d76be6febf3f0f76590f67e15"
+  },
+  "src/api/auth.ts": {
+    "mtime": 1781596764.0,
+    "ast_hash": "6d6d3b9139b393a7245e5f2d898ba20b",
+    "semantic_hash": "6d6d3b9139b393a7245e5f2d898ba20b"
+  },
+  "src/api/client.ts": {
+    "mtime": 1781596764.0,
+    "ast_hash": "62940d05abac3edebbe7015668472151",
+    "semantic_hash": "62940d05abac3edebbe7015668472151"
+  },
+  "src/api/complaints.ts": {
+    "mtime": 1781596764.0,
+    "ast_hash": "27cf1765537f3660c7cf29f1e388e31c",
+    "semantic_hash": "27cf1765537f3660c7cf29f1e388e31c"
+  },
+  "src/api/messages.ts": {
+    "mtime": 1781596764.0,
+    "ast_hash": "c85ef2a1fe790626af510b2d56979d96",
+    "semantic_hash": "c85ef2a1fe790626af510b2d56979d96"
+  },
+  "src/api/payments.ts": {
+    "mtime": 1784138164.3472292,
+    "ast_hash": "908c27d0fc362b90222d379252514e17",
+    "semantic_hash": ""
+  },
+  "src/api/properties.ts": {
+    "mtime": 1781596764.0,
+    "ast_hash": "a01ad5f9a0623832499d1fc50b75d49b",
+    "semantic_hash": "a01ad5f9a0623832499d1fc50b75d49b"
+  },
+  "src/components/AdminPanel.tsx": {
+    "mtime": 1781596777.0,
+    "ast_hash": "7993093ef8d9f193cae484df499819c7",
+    "semantic_hash": "7993093ef8d9f193cae484df499819c7"
+  },
+  "src/components/LandingPage.tsx": {
+    "mtime": 1781596777.0,
+    "ast_hash": "f54058cc9b8bb40b489333b9b35a60ae",
+    "semantic_hash": "f54058cc9b8bb40b489333b9b35a60ae"
+  },
+  "src/components/UssdPrompt.tsx": {
+    "mtime": 1784138155.544704,
+    "ast_hash": "ef8c7201cc02d6a75f781aa8ac0a5f00",
+    "semantic_hash": ""
+  },
+  "src/hooks/useAuth.ts": {
+    "mtime": 1781596764.0,
+    "ast_hash": "e0f6e0373146874a313645a0cb908e6a",
+    "semantic_hash": "e0f6e0373146874a313645a0cb908e6a"
+  },
+  "src/main.tsx": {
+    "mtime": 1781596777.0,
+    "ast_hash": "2b36426d5ad7e08ef79746aa524f4fb7",
+    "semantic_hash": "2b36426d5ad7e08ef79746aa524f4fb7"
+  },
+  "src/types.ts": {
+    "mtime": 1784138154.7418275,
+    "ast_hash": "5ce927fdaee20f863f98fafbea8ef013",
+    "semantic_hash": ""
+  },
+  "src/vite-env.d.ts": {
+    "mtime": 1781596764.0,
+    "ast_hash": "b4698577655263526a571c0e6a454110",
+    "semantic_hash": "b4698577655263526a571c0e6a454110"
+  },
+  "tsconfig.json": {
+    "mtime": 1781596776.0,
+    "ast_hash": "8827451c4e35790dd3f3538c265e7d15",
+    "semantic_hash": "8827451c4e35790dd3f3538c265e7d15"
+  },
+  "vite.config.ts": {
+    "mtime": 1781596776.0,
+    "ast_hash": "9c319043c25764dfe83b687f74637c6c",
+    "semantic_hash": "9c319043c25764dfe83b687f74637c6c"
+  },
+  "nyumba-backend/src/config/migrate_paystack.sql": {
+    "mtime": 1784138083.5655317,
+    "ast_hash": "b7b750bb5c4a6758310c64cbcbc6c31f",
+    "semantic_hash": ""
+  },
+  "nyumba-backend/src/services/paystackService.js": {
+    "mtime": 1784138071.13548,
+    "ast_hash": "10c481646f2e2e0361cd77668b71b6ae",
+    "semantic_hash": ""
+  },
+  "nyumba-backend/src/services/receiptService.js": {
+    "mtime": 1784138082.212092,
+    "ast_hash": "5d4f6248d247947b1f058086cf015243",
+    "semantic_hash": ""
+  },
+  "nyumba-backend/src/utils/encryption.js": {
+    "mtime": 1784138070.3507562,
+    "ast_hash": "60a16ae6534fd1d36b4bf8ed9e83c4c0",
+    "semantic_hash": ""
+  },
+  ".claude/CLAUDE.md": {
+    "mtime": 1783581381.9992123,
+    "ast_hash": "9b31786b637be3c13978bec4c2330752",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/SKILL.md": {
+    "mtime": 1783581381.9989445,
+    "ast_hash": "e582759bfc00f68579f37c74cbb64df9",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/add-watch.md": {
+    "mtime": 1783581242.6492026,
+    "ast_hash": "d59d027fe449f06aa03905a01184e779",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/exports.md": {
+    "mtime": 1783581242.6493275,
+    "ast_hash": "9da2a2152e60a22f07f05fed5158f287",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1783581242.6494806,
+    "ast_hash": "42fef56a01698118f7fd722acdadea34",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1783581242.6496296,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/hooks.md": {
+    "mtime": 1783581242.6497548,
+    "ast_hash": "3f545db6ce646650bb9de588f5512a27",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/query.md": {
+    "mtime": 1783581242.6499298,
+    "ast_hash": "3c46f8ad006874260614ed8657d02307",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/transcribe.md": {
+    "mtime": 1783581242.6500642,
+    "ast_hash": "67b6a5fa6c0974e18f60db9f8932fbd8",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/update.md": {
+    "mtime": 1783581242.6502743,
+    "ast_hash": "c698309979460d0f02ba616417844399",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1783581381.9995837,
+    "ast_hash": "82efb97a359f5c7290bf2513d14686be",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1781596776.0,
+    "ast_hash": "341a47be3b9f44a2b524cbccac6f2def",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1781596776.0,
+    "ast_hash": "176de1a30ba0f9da3df79764ee8b0cc5",
+    "semantic_hash": ""
+  },
+  "nyumba-backend/README.md": {
+    "mtime": 1781962795.0,
+    "ast_hash": "97a2fcbe22c86ce3dc867fd8c3dbaf51",
+    "semantic_hash": ""
+  },
+  "nyumba-backend/nyumba-backend/README.md": {
+    "mtime": 1781960948.0,
+    "ast_hash": "97a2fcbe22c86ce3dc867fd8c3dbaf51",
+    "semantic_hash": ""
+  },
+  "nyumba-backend/src/controllers/prompt.txt": {
+    "mtime": 1782753584.0,
+    "ast_hash": "4145d1cfda2b101c09796eb57071a7e6",
+    "semantic_hash": ""
+  }
+}

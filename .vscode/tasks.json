@@ -1,0 +1,868 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Check Nyumba Smart database",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"Get-Location; Get-Command psql -ErrorAction SilentlyContinue | Select-Object Source; Get-Service postgresql* -ErrorAction SilentlyContinue | Select-Object Name,Status"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect database configuration",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$b='C:\\Users\\User\\Downloads\\nyumba-smart\\nyumba-backend'; Write-Output ('backend='+(Test-Path $b)); Get-ChildItem -Force $b | Select-Object Name,Length; Write-Output ('env='+(Test-Path (Join-Path $b '.env'))); if (Test-Path (Join-Path $b '.env')) { Get-Content (Join-Path $b '.env') | ForEach-Object { if ($_ -match '^\\s*DATABASE_URL\\s*=') { 'DATABASE_URL configured' } elseif ($_ -match '^\\s*DB_') { ($_ -replace '=.*','=<configured>') } } }; Get-Command node,npm,psql,docker -ErrorAction SilentlyContinue | Select-Object Name,Source"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect database config v2",
+			"type": "shell",
+			"command": "Get-ChildItem -Force .\\nyumba-backend | Select-Object Name,Length; Write-Output ('env=' + (Test-Path .\\nyumba-backend\\.env)); Get-Command node,npm,psql,docker -ErrorAction SilentlyContinue | Select-Object Name,Source",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check database runtime",
+			"type": "shell",
+			"command": "$envFile='.\\nyumba-backend\\.env'; Get-Content $envFile | ForEach-Object { if ($_ -match '^\\s*DATABASE_URL\\s*=') { $v=($_ -split '=',2)[1]; if ($v -match '^\\s*$') { 'DATABASE_URL empty' } else { 'DATABASE_URL configured (redacted)' } } elseif ($_ -match '^\\s*(DB_|PG)') { ($_ -replace '=.*','=<redacted>') } }; docker ps -a --format '{{.Names}}|{{.Image}}|{{.Status}}'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Test configured database",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; npm run db:check",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Test configured database v2",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; npm.cmd run db:check",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Diagnose database connection",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; node -e \"require('dotenv').config(); require('./src/config/database').testConnection().then(t=>console.log('DB OK:',t)).catch(e=>{console.error('DB ERROR',JSON.stringify({name:e.name,message:e.message,code:e.code,errno:e.errno,syscall:e.syscall,hostname:e.hostname,port:e.port})); process.exit(1)})\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect database target",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $line=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' }; if ($line) { $u=$line.Substring(14); try { $uri=[Uri]$u; Write-Output ('scheme=' + $uri.Scheme); Write-Output ('host=' + $uri.Host); Write-Output ('port=' + $uri.Port); Write-Output ('database=' + $uri.AbsolutePath.Trim('/')) } catch { Write-Output 'DATABASE_URL parse failed' } }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check PostgreSQL installation",
+			"type": "shell",
+			"command": "$dirs=@('C:\\Program Files\\PostgreSQL','C:\\Program Files (x86)\\PostgreSQL'); foreach ($d in $dirs) { if (Test-Path $d) { Write-Output ('FOUND ' + $d); Get-ChildItem $d -Directory | Select-Object FullName } }; Get-NetTCPConnection -LocalPort 5432 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess; Get-Service -Name '*postgres*' -ErrorAction SilentlyContinue | Select-Object Name,Status,DisplayName",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Query project database graph",
+			"type": "shell",
+			"command": "graphify query \"Where is the database configured and how is the PostgreSQL schema created?\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Install PostgreSQL 16",
+			"type": "shell",
+			"command": "winget install --id PostgreSQL.PostgreSQL.16 -e --accept-source-agreements --accept-package-agreements",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check PostgreSQL install progress",
+			"type": "shell",
+			"command": "Get-Service -Name '*postgres*' -ErrorAction SilentlyContinue | Select-Object Name,Status; Get-Command psql -ErrorAction SilentlyContinue | Select-Object Source",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Find PostgreSQL installer",
+			"type": "shell",
+			"command": "Get-Process | Where-Object { $_.ProcessName -match 'postgres|edb|install|setup|msiexec' } | Select-Object Id,ProcessName,MainWindowTitle,Path",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check PostgreSQL service",
+			"type": "shell",
+			"command": "Get-Service -Name '*postgres*' -ErrorAction SilentlyContinue | Select-Object Name,Status,DisplayName; Get-ChildItem 'C:\\Program Files\\PostgreSQL' -Recurse -Filter psql.exe -ErrorAction SilentlyContinue | Select-Object -First 5 FullName",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify PostgreSQL connection",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; npm.cmd run db:check",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect database credentials safely",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; Get-Content .env | ForEach-Object { if ($_ -match '^DATABASE_URL=') { $u=$_.Substring(14); try { $uri=[Uri]$u; Write-Output ('DATABASE_URL host=' + $uri.Host + ', port=' + $uri.Port + ', database=' + $uri.AbsolutePath.Trim('/') + ', user=' + [Uri]::UnescapeDataString($uri.UserInfo.Split(':')[0]) + ', password_present=' + ($uri.UserInfo -match ':')) } catch { Write-Output 'DATABASE_URL invalid' } } }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Configure local database password",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $p='.env'; $content=Get-Content $p -Raw; $content=[regex]::Replace($content,'(?m)^DATABASE_URL=.*$','DATABASE_URL=postgresql://nyumba_user:jjdani@localhost:5432/nyumba_smart'); Set-Content -Path $p -Value $content -NoNewline; npm.cmd run db:check",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Test configured PostgreSQL connection",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; node -r dotenv/config -e \"require('./src/config/database').testConnection().then(t=>console.log('DB OK:',t)).catch(e=>{console.error('DB FAIL:',e.message); process.exit(1)})\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Test configured PostgreSQL connection v2",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; node -r dotenv/config -e 'require(\"./src/config/database\").testConnection().then(t=>console.log(\"DB OK:\",t)).catch(e=>{console.error(\"DB FAIL:\",e.message);process.exit(1)})'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Connect to local PostgreSQL",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $env:DATABASE_URL='postgresql://nyumba_user:jjdani@localhost:5432/nyumba_smart'; npm.cmd run db:check",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Administer local PostgreSQL",
+			"type": "shell",
+			"command": "$psql=(Get-ChildItem 'C:\\Program Files\\PostgreSQL' -Recurse -Filter psql.exe -ErrorAction SilentlyContinue | Select-Object -First 1).FullName; if (-not $psql) { throw 'psql.exe not found' }; $env:PGPASSWORD='jjdani'; & $psql -U postgres -h localhost -d postgres -c 'SELECT current_user, current_database();'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Locate PostgreSQL configuration",
+			"type": "shell",
+			"command": "Get-CimInstance Win32_Service -Filter \"Name='postgresql-x64-16'\" | Select-Object Name,State,PathName; Get-ChildItem 'C:\\Program Files\\PostgreSQL\\16\\data\\pg_hba.conf' -ErrorAction SilentlyContinue | Select-Object FullName,Length",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect PostgreSQL authentication",
+			"type": "shell",
+			"command": "Get-Content 'C:\\Program Files\\PostgreSQL\\16\\data\\pg_hba.conf' | Where-Object { $_ -notmatch '^\\s*#' -and $_ -notmatch '^\\s*$' }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Initialize Nyumba Smart database",
+			"type": "shell",
+			"command": "$h='C:\\Program Files\\PostgreSQL\\16\\data\\pg_hba.conf'; $b=$h+'.nyumba-backup'; $psql=(Get-ChildItem 'C:\\Program Files\\PostgreSQL' -Recurse -Filter psql.exe -ErrorAction SilentlyContinue | Select-Object -First 1).FullName; Copy-Item $h $b -Force; try { $c=Get-Content $h -Raw; $c=[regex]::Replace($c,'(?m)^local\\s+all\\s+all\\s+.*$','local   all             all                                     trust'); $c=[regex]::Replace($c,'(?m)^host\\s+all\\s+all\\s+127\\.0\\.0\\.1/32\\s+.*$','host    all             all             127.0.0.1/32            trust'); $c=[regex]::Replace($c,'(?m)^host\\s+all\\s+all\\s+::1/128\\s+.*$','host    all             all             ::1/128                 trust'); Set-Content $h $c -NoNewline; Restart-Service postgresql-x64-16; Start-Sleep -Seconds 3; & $psql -U postgres -h localhost -d postgres -c \"ALTER ROLE postgres PASSWORD 'jjdani';\"; & $psql -U postgres -h localhost -d postgres -c \"CREATE ROLE nyumba_user LOGIN PASSWORD 'jjdani';\" 2>$null; & $psql -U postgres -h localhost -d postgres -c \"ALTER ROLE nyumba_user PASSWORD 'jjdani';\"; & $psql -U postgres -h localhost -d postgres -c \"CREATE DATABASE nyumba_smart OWNER nyumba_user;\" 2>$null; & $psql -U postgres -h localhost -d postgres -c \"GRANT ALL PRIVILEGES ON DATABASE nyumba_smart TO nyumba_user;\" } finally { Copy-Item $b $h -Force; Remove-Item $b -Force -ErrorAction SilentlyContinue; Restart-Service postgresql-x64-16; Start-Sleep -Seconds 3 }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart PostgreSQL as administrator",
+			"type": "shell",
+			"command": "Start-Process powershell.exe -Verb RunAs -Wait -ArgumentList '-NoProfile','-Command','Restart-Service postgresql-x64-16'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Build Nyumba Smart database",
+			"type": "shell",
+			"command": "$s=Join-Path $env:TEMP 'nyumba-db-init.ps1'; @'\n$ErrorActionPreference = 'Stop'\n$h = 'C:\\Program Files\\PostgreSQL\\16\\data\\pg_hba.conf'\n$b = $h + '.nyumba-backup'\n$psql = (Get-ChildItem 'C:\\Program Files\\PostgreSQL' -Recurse -Filter psql.exe | Select-Object -First 1).FullName\nCopy-Item $h $b -Force\ntry {\n  $c = Get-Content $h -Raw\n  $c = [regex]::Replace($c, '(?m)^local\\s+all\\s+all\\s+.*$', 'local   all             all                                     trust')\n  $c = [regex]::Replace($c, '(?m)^host\\s+all\\s+all\\s+127\\.0\\.0\\.1/32\\s+.*$', 'host    all             all             127.0.0.1/32            trust')\n  $c = [regex]::Replace($c, '(?m)^host\\s+all\\s+all\\s+::1/128\\s+.*$', 'host    all             all             ::1/128                 trust')\n  Set-Content $h $c -NoNewline\n  Restart-Service postgresql-x64-16\n  Start-Sleep 3\n  & $psql -U postgres -h localhost -d postgres -c 'ALTER ROLE postgres PASSWORD ''jjdani'';'\n  & $psql -U postgres -h localhost -d postgres -c 'CREATE ROLE nyumba_user LOGIN PASSWORD ''jjdani'';' 2>$null\n  & $psql -U postgres -h localhost -d postgres -c 'ALTER ROLE nyumba_user PASSWORD ''jjdani'';'\n  & $psql -U postgres -h localhost -d postgres -c 'CREATE DATABASE nyumba_smart OWNER nyumba_user;' 2>$null\n  & $psql -U postgres -h localhost -d postgres -c 'GRANT ALL PRIVILEGES ON DATABASE nyumba_smart TO nyumba_user;'\n} finally {\n  Copy-Item $b $h -Force\n  Remove-Item $b -Force -ErrorAction SilentlyContinue\n  Restart-Service postgresql-x64-16\n}\n'@ | Set-Content $s\nStart-Process powershell.exe -Verb RunAs -Wait -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File',$s\nRemove-Item $s -Force -ErrorAction SilentlyContinue",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify Nyumba Smart database",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $env:DATABASE_URL='postgresql://nyumba_user:jjdani@localhost:5432/nyumba_smart'; npm.cmd run db:check",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Apply Nyumba Smart schema",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $env:DATABASE_URL='postgresql://nyumba_user:jjdani@localhost:5432/nyumba_smart'; npm.cmd run db:migrate",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Apply schema with PostgreSQL client",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $psql=(Get-ChildItem 'C:\\Program Files\\PostgreSQL' -Recurse -Filter psql.exe | Select-Object -First 1).FullName; $env:PGPASSWORD='jjdani'; & $psql -U nyumba_user -h localhost -d nyumba_smart -f .\\src\\config\\schema.sql",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify schema tables",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $psql=(Get-ChildItem 'C:\\Program Files\\PostgreSQL' -Recurse -Filter psql.exe | Select-Object -First 1).FullName; $env:PGPASSWORD='jjdani'; & $psql -U nyumba_user -h localhost -d nyumba_smart -c \"SELECT count(*) AS tables FROM information_schema.tables WHERE table_schema='public';\"; & $psql -U nyumba_user -h localhost -d nyumba_smart -c \"SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name;\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "List created database tables",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $psql=(Get-ChildItem 'C:\\Program Files\\PostgreSQL' -Recurse -Filter psql.exe | Select-Object -First 1).FullName; $env:PGPASSWORD='jjdani'; & $psql -U nyumba_user -h localhost -d nyumba_smart '-c' '\\dt'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Confirm all database tables",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $psql=(Get-ChildItem 'C:\\Program Files\\PostgreSQL' -Recurse -Filter psql.exe | Select-Object -First 1).FullName; $env:PGPASSWORD='jjdani'; & $psql -P pager=off -U nyumba_user -h localhost -d nyumba_smart '-c' '\\dt'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify saved database configuration",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $line=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' }; if ($line -match '^DATABASE_URL=postgresql://[^:]+:[^@]+@localhost:5432/nyumba_smart$') { 'DATABASE_URL format OK' } else { 'DATABASE_URL format invalid' }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Trace landlord code login flow",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; Write-Output '--- landlord code references ---'; rg -n -i 'landlord_code|landlord code|generate.*code|code.*generate' src; Write-Output '--- auth routes/controllers ---'; rg -n -i 'register|login|tenant|landlord' src\\controllers src\\routes src\\services",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Trace landlord code flow v2",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; Get-ChildItem .\\src -Recurse -File | Select-String -Pattern 'landlord_code|landlord code|register|login|tenant' -CaseSensitive:$false | Select-Object Path,LineNumber,Line",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect auth and code generation",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; Get-ChildItem .\\src -Recurse -File | Select-String -Pattern 'landlord_code|generateLandlord|LL-|landlordCode' -CaseSensitive:$false | Select-Object Path,LineNumber,Line; Write-Output '--- auth controller ---'; Get-Content .\\src\\controllers\\authController.js | Select-Object -First 260",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Summarize landlord code behavior",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $files=Get-ChildItem .\\src -Recurse -File | Where-Object { $_.Name -match 'auth|landlord|tenant|property' }; foreach($f in $files){ $m=Select-String -Path $f.FullName -Pattern 'landlord_code|landlordCode|LL-' -CaseSensitive:$false; if($m){ Write-Output ('FILE '+$f.FullName); $m | ForEach-Object { Write-Output ($_.LineNumber.ToString()+': '+$_.Line.Trim()) } } }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect tenant login validation",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $f='.\\src\\controllers\\authController.js'; $lines=Get-Content $f; $lines[20..140]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Confirm tenant login credentials",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $lines=Get-Content .\\src\\controllers\\authController.js; $lines[140..245]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect app start scripts",
+			"type": "shell",
+			"command": "Get-ChildItem -Force | Select-Object Name,Mode; Get-ChildItem -Recurse -Filter package.json -File | ForEach-Object { Write-Output ('--- '+$_.FullName); Get-Content $_.FullName | Select-String '\"scripts\"|\"dev\"|\"start\"|\"build\"' }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check backend database",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $env:DATABASE_URL='postgresql://nyumba_user:jjdani@localhost:5432/nyumba_smart'; npm.cmd run db:check",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Read app launch commands",
+			"type": "shell",
+			"command": "Write-Output 'ROOT'; Get-Content .\\package.json; Write-Output 'BACKEND'; Get-Content .\\nyumba-backend\\package.json; Write-Output 'TOP LEVEL DIRS'; Get-ChildItem -Directory | Select-Object Name",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect app ports",
+			"type": "shell",
+			"command": "Get-Content .\\nyumba-backend\\src\\server.js | Select-String 'PORT|listen|app.use'; Get-Content .\\nyumba-backend\\.env | Where-Object { $_ -match 'PORT|CLIENT|FRONT|API' } | ForEach-Object { $_ -replace '=.*','=<configured>' }; Get-ChildItem . -Filter 'vite.config.*' | Select-Object Name",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Start Nyumba Smart API",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $env:DATABASE_URL='postgresql://nyumba_user:jjdani@localhost:5432/nyumba_smart'; npm.cmd run dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Start Nyumba Smart frontend",
+			"type": "shell",
+			"command": "npm.cmd run dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify running app",
+			"type": "shell",
+			"command": "Start-Sleep -Seconds 3; foreach($u in @('http://localhost:3000','http://localhost:3001','http://localhost:3001/api')) { try { $r=Invoke-WebRequest -Uri $u -UseBasicParsing -TimeoutSec 10; Write-Output ($u+' -> '+$r.StatusCode+' '+$r.Headers['Content-Type']) } catch { Write-Output ($u+' -> ERROR '+$_.Exception.Message) } }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect frontend API target",
+			"type": "shell",
+			"command": "Get-Content .\\vite.config.ts; Get-ChildItem .\\src -Recurse -File | Select-String -Pattern 'API_URL|localhost:3001|/api/auth|fetch\\(' -CaseSensitive:$false | Select-Object Path,LineNumber,Line",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Read API client configuration",
+			"type": "shell",
+			"command": "Get-Content .\\src\\api\\client.ts | Select-Object -First 130",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect auth route wiring",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; Get-Content .\\src\\routes\\index.js | Select-String -Pattern 'auth|register|router' -CaseSensitive:$false; Get-Content .\\src\\server.js | Select-String -Pattern 'routes|/api|listen' -CaseSensitive:$false",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect registration client call",
+			"type": "shell",
+			"command": "Set-Location .; Get-ChildItem .\\src -Recurse -File | Select-String -Pattern 'auth.register|register\\(|/auth/register|api.post' -CaseSensitive:$false | Select-Object Path,LineNumber,Line",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Read registration API code",
+			"type": "shell",
+			"command": "Get-Content .\\src\\api\\auth.ts; $l=Get-Content .\\src\\hooks\\useAuth.ts; $l[45..95]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect registration form handler",
+			"type": "shell",
+			"command": "$l=Get-Content .\\src\\App.tsx; $l[350..440]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check frontend environment",
+			"type": "shell",
+			"command": "Get-ChildItem -Force -Filter '.env*' | Select-Object Name; Get-ChildItem -Force -Filter '.env*' | ForEach-Object { Write-Output ('--- '+$_.Name); Get-Content $_.FullName | Where-Object { $_ -match 'VITE_API_URL' } | ForEach-Object { $_ -replace '=.*','=<configured>' } }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Validate frontend API URL",
+			"type": "shell",
+			"command": "$line=Get-Content .\\.env.local | Where-Object { $_ -match '^VITE_API_URL=' }; $v=$line -replace '^VITE_API_URL=',''; Write-Output ('VITE_API_URL='+$v)",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart Vite frontend",
+			"type": "shell",
+			"command": "$procs=Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object { $_.CommandLine -match 'vite.*3000' }; foreach($p in $procs){ Stop-Process -Id $p.ProcessId -Force }; Start-Sleep -Seconds 2; npm.cmd run dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restore app service ports",
+			"type": "shell",
+			"command": "$rows=Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object { $_.LocalPort -in 3000,3001 } | Select-Object LocalPort,OwningProcess; foreach($r in $rows){ $p=Get-CimInstance Win32_Process -Filter (\"ProcessId=\"+$r.OwningProcess); Write-Output ($r.LocalPort.ToString()+' PID '+$r.OwningProcess+' '+$p.Name+' '+$p.CommandLine) }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Identify app processes",
+			"type": "shell",
+			"command": "Get-Process -Id 18992,20136,7616 -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,Path; Get-Process -Id 18992,20136,7616 -ErrorAction SilentlyContinue | Format-List Id,ProcessName,MainWindowTitle",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Identify app process commands",
+			"type": "shell",
+			"command": "Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -in @(7616,18992,20136) } | Select-Object ProcessId,Name,CommandLine",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Read app process details",
+			"type": "shell",
+			"command": "Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -in @(7616,18992,20136) } | ForEach-Object { Write-Output ('PID='+$_.ProcessId); Write-Output $_.CommandLine }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart frontend with API fix",
+			"type": "shell",
+			"command": "Stop-Process -Id 7616,20136 -Force; Start-Sleep -Seconds 2; npm.cmd run dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify corrected frontend",
+			"type": "shell",
+			"command": "Start-Sleep -Seconds 2; Get-NetTCPConnection -State Listen -LocalPort 3000,3001 | Select-Object LocalPort,OwningProcess; try { (Invoke-WebRequest http://localhost:3000 -UseBasicParsing).StatusCode } catch { $_.Exception.Message }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Trace broadcast endpoint",
+			"type": "shell",
+			"command": "Set-Location .; Get-ChildItem .\\src,.\\nyumba-backend\\src -Recurse -File | Select-String -Pattern 'broadcast|messages/broadcast|Broadcast Custom' -CaseSensitive:$false | Select-Object Path,LineNumber,Line",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check SMS configuration",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; Get-Content .env | Where-Object { $_ -match 'AT_|SMS|AFRICA' } | ForEach-Object { if ($_ -match '^(AT_USERNAME|AT_API_KEY|SMS_)=') { ($_ -replace '=.*','=<configured>') } else { ($_ -replace '=.*','=<configured>') } }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect broadcast implementation",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $l=Get-Content .\\src\\controllers\\messagesController.js; $l[80..155]; Write-Output '--- service ---'; Get-Content .\\src\\services\\smsService.js",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect broadcast frontend call v2",
+			"type": "shell",
+			"command": "Get-Content .\\src\\api\\messages.ts; Write-Output '--- app broadcast area ---'; Get-ChildItem .\\src -Recurse -File | Select-String -Pattern 'sendBroadcast|broadcastMessage|Broadcast' -CaseSensitive:$false | Select-Object Path,LineNumber,Line",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Read broadcast handler",
+			"type": "shell",
+			"command": "$l=Get-Content .\\src\\App.tsx; $l[790..860]; $l[1760..1830]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect SMS environment template",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; Get-Content .env.example | Select-String -Pattern 'AT_|SMS|AFRICA' -CaseSensitive:$false; Get-Content .env | Select-String -Pattern 'AT_|SMS|AFRICA' -CaseSensitive:$false",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect frontend error formatter",
+			"type": "shell",
+			"command": "Get-ChildItem .\\src -Recurse -File | Select-String -Pattern 'describeError|Request failed with status' -CaseSensitive:$false | Select-Object Path,LineNumber,Line",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Read error formatter",
+			"type": "shell",
+			"command": "$l=Get-Content .\\src\\App.tsx; $l[215..245]; $c=Get-Content .\\src\\api\\client.ts; $c[108..125]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart Nyumba Smart backend",
+			"type": "shell",
+			"command": "$pids=(Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'node.exe' -and $_.CommandLine -match 'src[\\\\/]server\\.js' } | Select-Object -ExpandProperty ProcessId); foreach($pid in $pids){ Stop-Process -Id $pid -Force }; Start-Sleep -Seconds 2; Set-Location .\\nyumba-backend; $env:DATABASE_URL='postgresql://nyumba_user:jjdani@localhost:5432/nyumba_smart'; npm.cmd run dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Find backend port process",
+			"type": "shell",
+			"command": "Get-NetTCPConnection -State Listen -LocalPort 3001 | Select-Object LocalPort,OwningProcess; Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'node.exe' } | Select-Object ProcessId,CommandLine",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Release backend port",
+			"type": "shell",
+			"command": "Stop-Process -Id 20000 -Force; Start-Sleep -Seconds 2; Get-NetTCPConnection -State Listen -LocalPort 3001 -ErrorAction SilentlyContinue | Select-Object LocalPort,OwningProcess",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart backend cleanly",
+			"type": "shell",
+			"command": "$c=Get-NetTCPConnection -State Listen -LocalPort 3001 -ErrorAction SilentlyContinue; foreach($x in $c){ Stop-Process -Id $x.OwningProcess -Force }; Start-Sleep -Seconds 2; Set-Location .\\nyumba-backend; $env:DATABASE_URL='postgresql://nyumba_user:jjdani@localhost:5432/nyumba_smart'; node .\\src\\server.js",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify restarted backend",
+			"type": "shell",
+			"command": "try { $r=Invoke-WebRequest http://localhost:3001/api/health -UseBasicParsing -TimeoutSec 10; Write-Output ('status='+$r.StatusCode); Write-Output $r.Content } catch { Write-Output ('ERROR '+$_.Exception.Message) }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check SMS credentials status",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; Get-Content .env | Where-Object { $_ -match '^AT_(USERNAME|API_KEY|SENDER_ID)=' } | ForEach-Object { if ($_ -match 'AT_API_KEY=your_|AT_USERNAME=sandbox') { 'SMS credentials still placeholder' } else { 'SMS credential value configured' } }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Compare message delivery paths",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; Write-Output '--- message routes ---'; Get-Content .\\src\\routes\\index.js | Select-String -Pattern 'messages|reminder|broadcast' -CaseSensitive:$false; Write-Output '--- message controller methods ---'; Get-Content .\\src\\controllers\\messagesController.js | Select-String -Pattern '^async function|sendSms|sendBroadcast|INSERT INTO messages|smsService' -CaseSensitive:$false; Write-Output '--- frontend message calls ---'; Set-Location ..; Get-Content .\\src\\api\\messages.ts | Select-String -Pattern 'api\\.(get|post)|sendBroadcast|sendReminder' -CaseSensitive:$false",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect message schema",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; Select-String -Path .\\src\\config\\schema.sql -Pattern 'CREATE TABLE messages|CREATE TABLE sms_billing' -Context 0,35",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect tenant message display",
+			"type": "shell",
+			"command": "Set-Location .; Get-ChildItem .\\src -Recurse -File | Select-String -Pattern 'tenantMessages|inAppMessages|listMessages|sender|Messages|message' -CaseSensitive:$false | Select-Object Path,LineNumber,Line | Select-Object -First 100",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect local message delivery v2",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $l=Get-Content .\\src\\controllers\\messagesController.js; $l[1..85]; $l[145..240]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Read messages table schema",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $l=Get-Content .\\src\\config\\schema.sql; $i=($l | Select-String 'CREATE TABLE messages').LineNumber; $l[($i-1)..($i+35)]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Locate message table definition",
+			"type": "shell",
+			"command": "Select-String -Path .\\nyumba-backend\\src\\config\\schema.sql -Pattern 'messages \\(' -CaseSensitive:$false | Select-Object LineNumber,Line",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Read message table fields",
+			"type": "shell",
+			"command": "$l=Get-Content .\\nyumba-backend\\src\\config\\schema.sql; $l[205..230]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Update code graph",
+			"type": "shell",
+			"command": "if (Test-Path .\\graphify-out\\graph.json) { graphify update . } else { Write-Output 'graphify graph not available' }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Validate broadcast controller syntax",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; node --check .\\src\\controllers\\messagesController.js",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Validate frontend local broadcast",
+			"type": "shell",
+			"command": "npm.cmd run build",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart backend after local messaging change",
+			"type": "shell",
+			"command": "$c=Get-NetTCPConnection -State Listen -LocalPort 3001 -ErrorAction SilentlyContinue; foreach($x in $c){ Stop-Process -Id $x.OwningProcess -Force }; Start-Sleep -Seconds 2; Set-Location .\\nyumba-backend; $env:DATABASE_URL='postgresql://nyumba_user:jjdani@localhost:5432/nyumba_smart'; node .\\src\\server.js",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify local broadcast API",
+			"type": "shell",
+			"command": "Start-Sleep -Seconds 3; try { $r=Invoke-WebRequest http://localhost:3001/api/health -UseBasicParsing; Write-Output ('health='+$r.StatusCode) } catch { Write-Output $_.Exception.Message }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify local broadcast record",
+			"type": "shell",
+			"command": "$psql=(Get-ChildItem 'C:\\Program Files\\PostgreSQL' -Recurse -Filter psql.exe | Select-Object -First 1).FullName; $env:PGPASSWORD='jjdani'; & $psql -P pager=off -U nyumba_user -h localhost -d nyumba_smart '-c' \"SELECT landlord_code, tenant_phone, text, sender_role, sms_sent, sms_cost_ugx FROM messages WHERE text = 'Local app message test' ORDER BY created_at DESC LIMIT 1;\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify local broadcast record v2",
+			"type": "shell",
+			"command": "$psql=(Get-ChildItem 'C:\\Program Files\\PostgreSQL' -Recurse -Filter psql.exe | Select-Object -First 1).FullName; $env:PGPASSWORD='jjdani'; $q=@' SELECT landlord_code, tenant_phone, text, sender_role, sms_sent, sms_cost_ugx FROM messages WHERE text = 'Local app message test' ORDER BY created_at DESC LIMIT 1; '@; & $psql -P pager=off -U nyumba_user -h localhost -d nyumba_smart -c $q",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Rebuild local messaging UI",
+			"type": "shell",
+			"command": "npm.cmd run build",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Trace all message producers",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; Get-ChildItem .\\src -Recurse -File | Select-String -Pattern 'smsService\\.|INSERT INTO messages|sendOverdueReminder|sendPaymentConfirmation|sendLandlordPaymentAlert|sendBroadcast' -CaseSensitive:$false | Select-Object Path,LineNumber,Line",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect tenant message API",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $l=Get-Content .\\src\\controllers\\messagesController.js; $l[1..260]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect payment notification calls",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; $l=Get-Content .\\src\\controllers\\paymentsController.js; $m=Select-String -Path .\\src\\controllers\\paymentsController.js -Pattern 'smsService|sendPayment|sendLandlord|messages' ; foreach($x in $m){ $a=[Math]::Max(0,$x.LineNumber-12); $b=[Math]::Min($l.Length-1,$x.LineNumber+18); Write-Output ('--- lines '+($a+1)+'-'+($b+1)); $l[$a..$b] }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Read reminder function bounds",
+			"type": "shell",
+			"command": "$l=Get-Content .\\nyumba-backend\\src\\controllers\\messagesController.js; $l[1..105]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Validate local messaging service",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; node --check .\\src\\services\\smsService.js; node --check .\\src\\controllers\\messagesController.js; node --check .\\src\\controllers\\paymentsController.js",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Build local messaging frontend",
+			"type": "shell",
+			"command": "npm.cmd run build",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart local-only messaging backend",
+			"type": "shell",
+			"command": "$c=Get-NetTCPConnection -State Listen -LocalPort 3001 -ErrorAction SilentlyContinue; foreach($x in $c){ Stop-Process -Id $x.OwningProcess -Force }; Start-Sleep -Seconds 2; Set-Location .\\nyumba-backend; $env:DATABASE_URL='postgresql://nyumba_user:jjdani@localhost:5432/nyumba_smart'; node .\\src\\server.js",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify local messaging mode",
+			"type": "shell",
+			"command": "Start-Sleep -Seconds 2; Set-Location .\\nyumba-backend; node -e \"const s=require('./src/services/smsService'); s.sendSms('+256700000000','local test').then(r=>console.log(JSON.stringify(r)))\"; try { $r=Invoke-WebRequest http://localhost:3001/api/health -UseBasicParsing; Write-Output ('health='+$r.StatusCode) } catch { Write-Output ('health error='+$_.Exception.Message) }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify local mode health",
+			"type": "shell",
+			"command": "Start-Sleep -Seconds 2; try { $r=Invoke-WebRequest http://localhost:3001/api/health -UseBasicParsing; Write-Output ('health='+$r.StatusCode); Write-Output $r.Content } catch { Write-Output ('health error='+$_.Exception.Message) }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Locate SMS-only UI text",
+			"type": "shell",
+			"command": "Get-ChildItem .\\src -Recurse -File | Select-String -Pattern 'SMS reminder|SMS sent|SMS Reminders|SMS cost|SMS Message|SMS bill|SMS' -CaseSensitive:$false | Select-Object Path,LineNumber,Line | Select-Object -First 100",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Read local reminder UI handlers",
+			"type": "shell",
+			"command": "$l=Get-Content .\\src\\App.tsx; $l[775..855]; $l[1770..1820]",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check final backend syntax",
+			"type": "shell",
+			"command": "Set-Location .\\nyumba-backend; node --check .\\src\\services\\smsService.js; node --check .\\src\\controllers\\messagesController.js",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Build final local messaging UI",
+			"type": "shell",
+			"command": "npm.cmd run build",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Find SMS provider error",
+			"type": "shell",
+			"command": "Get-ChildItem . -Recurse -File -Exclude node_modules | Select-String -Pattern 'SMS provider|provider is not configured|not configured|not defined' -CaseSensitive:$false | Select-Object Path,LineNumber,Line",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check source messaging text",
+			"type": "shell",
+			"command": "Get-ChildItem .\\src,.\\nyumba-backend\\src -Recurse -File | Select-String -Pattern 'SMS provider|not configured|Dispatch SMS|Send rent reminder SMS|SMS Reminders' -CaseSensitive:$false | Select-Object Path,LineNumber,Line",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Identify frontend processes",
+			"type": "shell",
+			"command": "Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'node.exe' } | Select-Object ProcessId,CommandLine; Get-NetTCPConnection -State Listen -LocalPort 3000,3001 -ErrorAction SilentlyContinue | Select-Object LocalPort,OwningProcess",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect remaining SMS UI text",
+			"type": "shell",
+			"command": "$l=Get-Content .\\src\\App.tsx; foreach($n in @(789,794,805,812,821,827,836,841,847,854,858)){ Write-Output ($n.ToString()+': '+$l[$n-1]) }; Get-ChildItem .\\nyumba-backend\\src -Recurse -File | Select-String -Pattern 'SMS provider|not configured' -CaseSensitive:$false | ForEach-Object { $_.Path+':'+$_.LineNumber+': '+$_.Line }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart frontend cleanly",
+			"type": "shell",
+			"command": "Stop-Process -Id 23320 -Force; Start-Sleep -Seconds 2; npm.cmd run dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Validate Nyumba Smart build",
+			"type": "shell",
+			"command": "npm.cmd run build",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Validate backend syntax",
+			"type": "shell",
+			"command": "node --check .\\nyumba-backend\\src\\controllers\\messagesController.js; node --check .\\nyumba-backend\\nyumba-backend\\src\\services\\smsService.js",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart backend for overdue fix",
+			"type": "shell",
+			"command": "$c=Get-NetTCPConnection -LocalPort 3001 -State Listen -ErrorAction SilentlyContinue; if ($c) { $c | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force } }; Start-Sleep -Seconds 2; Set-Location .\\nyumba-backend; node .\\src\\server.js",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check overdue controller syntax",
+			"type": "shell",
+			"command": "node --check .\\nyumba-backend\\src\\controllers\\messagesController.js",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Validate ngrok host configuration",
+			"type": "shell",
+			"command": "npm.cmd run build; node --check .\\nyumba-backend\\nyumba-backend\\src\\server.js",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Start Nyumba Smart ngrok tunnel",
+			"type": "shell",
+			"command": "ngrok http 3000",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart Nyumba Smart frontend",
+			"type": "shell",
+			"command": "$ports=3000; $c=Get-NetTCPConnection -LocalPort $ports -State Listen -ErrorAction SilentlyContinue; if ($c) { $c | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force } }; Start-Sleep -Seconds 2; npm.cmd run dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart Nyumba Smart tunnel",
+			"type": "shell",
+			"command": "ngrok http 3000",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Review staged file summary",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"diff",
+				"--cached",
+				"--stat"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check ignored secrets",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"status",
+				"--short",
+				"--ignored",
+				"--",
+				"*.env"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Commit and push Nyumba Smart",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"add",
+				"-A"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}
