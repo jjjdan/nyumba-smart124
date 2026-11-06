@@ -303,12 +303,20 @@ BEGIN
     'users','landlords','tenants','properties',
     'subscription_tiers','financial_records','complaints'
   ] LOOP
-    EXECUTE format(
-      'CREATE TRIGGER trg_%I_updated_at
-       BEFORE UPDATE ON %I
-       FOR EACH ROW EXECUTE FUNCTION update_updated_at()',
-      t, t
-    );
+    IF NOT EXISTS (
+      SELECT 1
+      FROM pg_trigger
+      WHERE tgname = format('trg_%s_updated_at', t)
+        AND tgrelid = t::regclass
+        AND NOT tgisinternal
+    ) THEN
+      EXECUTE format(
+        'CREATE TRIGGER trg_%I_updated_at
+         BEFORE UPDATE ON %I
+         FOR EACH ROW EXECUTE FUNCTION update_updated_at()',
+        t, t
+      );
+    END IF;
   END LOOP;
 END;
 $$;
