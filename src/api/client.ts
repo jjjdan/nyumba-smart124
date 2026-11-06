@@ -5,6 +5,7 @@
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const REQUEST_TIMEOUT_MS = 65000;
 
 const TOKEN_KEY = 'sl_access_token';
 const REFRESH_KEY = 'sl_refresh_token';
@@ -85,12 +86,31 @@ export async function apiRequest<T = any>(path: string, opts: RequestOptions = {
   const doFetch = async (token: string | null): Promise<Response> => {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (token && !skipAuth) headers.Authorization = `Bearer ${token}`;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-    return fetch(`${API_BASE_URL}${path}`, {
-      method,
-      headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
+    try {
+      return await fetch(`${API_BASE_URL}${path}`, {
+        method,
+        headers,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        throw new ApiError(
+          'The API is taking too long to respond. The free server may be waking up. Please try again.',
+          408
+        );
+      }
+      throw new ApiError(
+        'The API is unavailable. Please wait a moment and try again.',
+        503,
+        error
+      );
+    } finally {
+      window.clearTimeout(timeout);
+    }
   };
 
   let token = skipAuth ? null : getAccessToken();
