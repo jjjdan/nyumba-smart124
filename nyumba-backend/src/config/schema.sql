@@ -88,11 +88,21 @@ CREATE INDEX IF NOT EXISTS idx_properties_landlord_code ON properties(landlord_c
 CREATE INDEX IF NOT EXISTS idx_properties_status ON properties(status);
 
 -- Now add the FK back to tenants
-ALTER TABLE tenants
-  ADD CONSTRAINT fk_tenants_property
-  FOREIGN KEY (property_id)
-  REFERENCES properties(id)
-  ON DELETE SET NULL;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'fk_tenants_property'
+      AND conrelid = 'tenants'::regclass
+  ) THEN
+    ALTER TABLE tenants
+      ADD CONSTRAINT fk_tenants_property
+      FOREIGN KEY (property_id)
+      REFERENCES properties(id)
+      ON DELETE SET NULL;
+  END IF;
+END;
+$$;
 
 -- =============================================================
 -- SUBSCRIPTION TIERS (admin-configurable)
@@ -120,11 +130,21 @@ INSERT INTO subscription_tiers (name, min_units, max_units, price_per_month) VAL
 ON CONFLICT DO NOTHING;
 
 -- Add subscription FK to landlords
-ALTER TABLE landlords
-  ADD CONSTRAINT fk_landlords_subscription
-  FOREIGN KEY (subscription_id)
-  REFERENCES subscription_tiers(id)
-  ON DELETE SET NULL;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'fk_landlords_subscription'
+      AND conrelid = 'landlords'::regclass
+  ) THEN
+    ALTER TABLE landlords
+      ADD CONSTRAINT fk_landlords_subscription
+      FOREIGN KEY (subscription_id)
+      REFERENCES subscription_tiers(id)
+      ON DELETE SET NULL;
+  END IF;
+END;
+$$;
 
 -- =============================================================
 -- FINANCIAL RECORDS (transactions ledger)
