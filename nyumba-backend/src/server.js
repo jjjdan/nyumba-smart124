@@ -9,7 +9,7 @@ const fs      = require('fs');
 
 const routes            = require('./routes/index');
 const { errorHandler }  = require('./middleware/errorHandler');
-const { testConnection } = require('./config/database');
+const { testConnection, getPool } = require('./config/database');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -119,9 +119,12 @@ async function start() {
   try {
     const dbTime = await testConnection();
     console.log(`✅ Database connected — server time: ${dbTime}`);
+    const schemaSql = fs.readFileSync(path.join(__dirname, 'config', 'schema.sql'), 'utf8');
+    await getPool().query(schemaSql);
+    console.log('✅ Database schema is ready');
   } catch (dbErr) {
-    console.warn(`⚠️  Database not reachable: ${dbErr.message}`);
-    console.warn('   Server will start anyway. Ensure DATABASE_URL is set correctly.');
+    console.error(`❌ Database initialization failed: ${dbErr.message}`);
+    process.exit(1);
   }
 
   app.listen(PORT, '0.0.0.0', () => {
