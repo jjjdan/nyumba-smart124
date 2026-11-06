@@ -119,8 +119,8 @@ async function start() {
     console.warn('   Server will start anyway. Ensure DATABASE_URL is set correctly.');
   }
 
-  app.listen(PORT, () => {
-    console.log(`🚀 Nyumba Smart API running on http://localhost:${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Nyumba Smart API running on port ${PORT}`);
     console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`   Frontend:    ${frontendBuilt ? `serving from ${FRONTEND_DIST}` : 'NOT BUILT (API-only mode)'}`);
     console.log(`   Paystack:    landlord-owned keys (platform fallback: ${process.env.PAYSTACK_PLATFORM_SECRET_KEY ? 'SET' : 'NOT SET'})`);
