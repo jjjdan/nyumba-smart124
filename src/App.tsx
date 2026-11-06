@@ -2030,6 +2030,48 @@ export default function App() {
 
                   </div>
 
+                  <section className="lg:col-span-2 rounded-2xl border border-indigo-500/20 bg-indigo-950/10 p-4">
+                    <div className="flex items-center justify-between gap-3 mb-3">
+                      <div>
+                        <span className="text-[10px] text-indigo-300 uppercase tracking-wider block font-black font-mono">Landlord Messages</span>
+                        <h3 className="text-sm font-bold text-white mt-1">Updates and rent reminders</h3>
+                      </div>
+                      <Mail className="w-4 h-4 text-indigo-300" />
+                    </div>
+                    {inAppMessages.length === 0 ? (
+                      <p className="text-xs text-neutral-500">No messages from your landlord yet.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {inAppMessages.map(message => {
+                          const isReminder = /overdue|rent.*due|due.*rent/i.test(message.text);
+                          return (
+                            <article
+                              key={message.id}
+                              className={`rounded-xl border p-3 ${
+                                isReminder
+                                  ? 'border-amber-400/30 bg-amber-400/10'
+                                  : 'border-indigo-400/20 bg-indigo-400/5'
+                              }`}
+                            >
+                              <div className="flex items-start gap-2">
+                                {isReminder && <AlertTriangle className="w-4 h-4 text-amber-300 mt-0.5 flex-shrink-0" />}
+                                <div className="min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className={`text-[10px] font-black uppercase tracking-wider ${isReminder ? 'text-amber-300' : 'text-indigo-300'}`}>
+                                      {isReminder ? 'Overdue rent reminder' : 'Message from landlord'}
+                                    </span>
+                                    <span className="text-[10px] text-neutral-500">{message.date}</span>
+                                  </div>
+                                  <p className="text-xs text-neutral-200 mt-1 leading-relaxed">{message.text}</p>
+                                </div>
+                              </div>
+                            </article>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </section>
+
                   {/* Right Column: Complaints Desk Form & History */}
                   <div className="space-y-4">
                     
