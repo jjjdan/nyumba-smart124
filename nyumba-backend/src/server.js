@@ -13,6 +13,11 @@ const { testConnection } = require('./config/database');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://nyumba-smart124.vercel.app',
+  'http://localhost:5173',
+].filter(Boolean);
 
 // ─── Security & CORS ───────────────────────────────────────────────────────
 
@@ -24,7 +29,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 
 app.use(cors({
   origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
+    ...allowedOrigins,
     // Add your production domain here
   ],
   credentials: true,
