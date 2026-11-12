@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import FeedbackSection from './FeedbackSection';
 import { 
   ShieldAlert, 
   Coins, 
@@ -124,6 +125,8 @@ export default function AdminPanel({
               <Coins className="w-4 h-4 text-emerald-400 animate-pulse" />
             </div>
           </div>
+
+          <FeedbackSection isAdmin />
 
         </div>
 

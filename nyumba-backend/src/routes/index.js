@@ -11,6 +11,10 @@ const paymentsController   = require('../controllers/paymentsController');
 const complaintsController = require('../controllers/complaintsController');
 const messagesController   = require('../controllers/messagesController');
 const adminController      = require('../controllers/adminController');
+const tenantController      = require('../controllers/tenantController');
+const receiptController     = require('../controllers/receiptController');
+const feedbackController    = require('../controllers/feedbackController');
+const notificationController = require('../controllers/notificationController');
 
 const router = express.Router();
 
@@ -51,10 +55,49 @@ router.post('/auth/register',
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
     body('role').isIn(['landlord', 'tenant']).withMessage('Role must be landlord or tenant'),
     body('landlordCode').if(body('role').equals('tenant')).notEmpty().withMessage('Landlord code required for tenants'),
+    body('termsAccepted').custom(value => value === true || value === 'true').withMessage('Terms acceptance is required'),
+    body('termsVersion').trim().isLength({ min: 1, max: 50 }).withMessage('Terms version is required'),
   ],
   validateRequest,
   authController.register
 );
+
+// Tenant lifecycle actions retain tenant, property and financial history.
+router.patch('/tenants/:id/archive', authenticate, authorize('landlord', 'admin'),
+ param('id').isUUID(), validateRequest, tenantController.archiveTenant);
+router.patch('/tenants/:id/unlink', authenticate, authorize('landlord', 'admin'),
+ param('id').isUUID(), validateRequest, tenantController.unlinkTenant);
+
+router.get('/receipts', authenticate, receiptController.listReceipts);
+router.patch('/receipts/:id/archive', authenticate, authorize('landlord', 'admin'),
+ param('id').isUUID(), validateRequest, receiptController.archiveReceipt);
+router.patch('/receipts/:id/hide', authenticate, authorize('landlord', 'admin'),
+ param('id').isUUID(), validateRequest, receiptController.archiveReceipt);
+router.patch('/payments/:id/archive', authenticate, authorize('landlord', 'admin'),
+ param('id').isUUID(), validateRequest, receiptController.archiveReceipt);
+
+router.post('/feedback', authenticate,
+ [body('subject').trim().isLength({ min: 1, max: 200 }), body('message').trim().notEmpty()],
+ validateRequest, feedbackController.submitFeedback);
+router.get('/feedback', authenticate, feedbackController.listFeedback);
+router.post('/admin/feedback/:id/reply', authenticate, authorize('admin'),
+ [param('id').isUUID(), body('message').trim().notEmpty()], validateRequest,
+ feedbackController.replyFeedback);
+router.patch('/admin/feedback/:id/resolve', authenticate, authorize('admin'),
+ param('id').isUUID(), validateRequest, feedbackController.resolveFeedback);
+router.post('/feedback/:id/reply', authenticate, authorize('admin'),
+ [param('id').isUUID(), body('message').trim().notEmpty()], validateRequest,
+ feedbackController.replyFeedback);
+router.patch('/feedback/:id/resolve', authenticate, authorize('admin'),
+ param('id').isUUID(), validateRequest, feedbackController.resolveFeedback);
+
+router.post('/notifications', authenticate, authorize('admin'),
+ [body('userId').isUUID(), body('title').trim().notEmpty(), body('message').trim().notEmpty()],
+ validateRequest, notificationController.createNotification);
+router.get('/notifications', authenticate, notificationController.listNotifications);
+router.patch('/notifications/:id/read', authenticate, param('id').isUUID(), validateRequest,
+ notificationController.markRead);
+router.post('/notifications/read-all', authenticate, notificationController.markAllRead);
 
 router.post('/auth/login',
   authLimiter,

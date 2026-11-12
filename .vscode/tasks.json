@@ -854,12 +854,71 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "Commit and push Nyumba Smart",
+			"label": "Check Git authentication helper",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"git config --show-origin --get credential.helper; git config --show-origin --get user.name; git config --show-origin --get user.email; git credential-manager --version"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Sign Git credential manager into GitHub",
 			"type": "shell",
 			"command": "git",
 			"args": [
-				"add",
-				"-A"
+				"credential-manager",
+				"github",
+				"login"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Push Nyumba Smart to GitHub",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"push",
+				"-u",
+				"origin",
+				"main"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "frontend-build-check",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "frontend-build-check-cmd",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "update-code-graph",
+			"type": "shell",
+			"command": "graphify",
+			"args": [
+				"update",
+				"."
 			],
 			"isBackground": false,
 			"problemMatcher": []

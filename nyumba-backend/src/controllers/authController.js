@@ -40,11 +40,14 @@ async function generateUniqueLandlordCode(name) {
 
 /**
  * POST /api/auth/register
- * Body: { name, email, phone, password, role, landlordCode? }
+ * Body: { name, email, phone, password, role, landlordCode?, termsAccepted, termsVersion }
  */
 async function register(req, res, next) {
   try {
-    const { name, email, phone, password, role, landlordCode } = req.body;
+    const { name, email, phone, password, role, landlordCode, termsAccepted, termsVersion } = req.body;
+    if ((termsAccepted !== true && termsAccepted !== 'true') || !termsVersion) {
+      throw createError('You must accept the current terms of service', 400);
+    }
 
     // Normalize phone — strip spaces, ensure Uganda format
     const normalizedPhone = phone.replace(/\s+/g, '');
@@ -63,12 +66,22 @@ async function register(req, res, next) {
     const result = await withTransaction(async (client) => {
       // 1. Create user
       const userRes = await client.query(
-        `INSERT INTO users (name, email, phone, password_hash, role)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO users (name, email, phone, password_hash, role, terms_version, terms_accepted_at)
+         VALUES ($1, $2, $3, $4, $5, $6, NOW())
          RETURNING id, name, email, phone, role, created_at`,
-        [name, email.toLowerCase(), normalizedPhone, passwordHash, role]
+        [name, email.toLowerCase(), normalizedPhone, passwordHash, role, termsVersion]
       );
       const user = userRes.rows[0];
+      await client.query(
+        `INSERT INTO terms_versions (version, is_current) VALUES ($1, TRUE)
+         ON CONFLICT (version) DO UPDATE SET is_current = terms_versions.is_current`,
+        [termsVersion]
+      );
+      await client.query(
+        `INSERT INTO terms_acceptances (user_id, terms_version, ip_address, user_agent)
+         VALUES ($1, $2, $3, $4)`,
+        [user.id, termsVersion, req.ip, req.get('user-agent') || null]
+      );
 
       let profileData = {};
 

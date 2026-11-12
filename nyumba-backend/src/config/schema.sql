@@ -334,3 +334,47 @@ BEGIN
   END LOOP;
 END;
 $$;
+
+-- =============================================================
+-- PRODUCT FOUNDATIONS (idempotent additions)
+-- =============================================================
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS is_archived BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ;
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS archived_by UUID REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS unlinked_at TIMESTAMPTZ;
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS unlinked_by UUID REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE financial_records ADD COLUMN IF NOT EXISTS is_archived BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE financial_records ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ;
+ALTER TABLE financial_records ADD COLUMN IF NOT EXISTS archived_by UUID REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_version VARCHAR(50);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMPTZ;
+CREATE TABLE IF NOT EXISTS terms_versions (
+  version VARCHAR(50) PRIMARY KEY, content_hash VARCHAR(128),
+  published_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), is_current BOOLEAN NOT NULL DEFAULT FALSE
+);
+CREATE TABLE IF NOT EXISTS terms_acceptances (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  terms_version VARCHAR(50) NOT NULL REFERENCES terms_versions(version),
+  accepted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), ip_address INET, user_agent TEXT,
+  UNIQUE (user_id, terms_version)
+);
+CREATE INDEX IF NOT EXISTS idx_terms_acceptances_user ON terms_acceptances(user_id);
+CREATE TABLE IF NOT EXISTS feedback (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  subject VARCHAR(200) NOT NULL, message TEXT NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved')),
+  resolved_at TIMESTAMPTZ, resolved_by UUID REFERENCES users(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS feedback_replies (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), feedback_id UUID NOT NULL REFERENCES feedback(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL, message TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_feedback_user ON feedback(user_id);
+CREATE INDEX IF NOT EXISTS idx_feedback_status ON feedback(status);
+CREATE TABLE IF NOT EXISTS notifications (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type VARCHAR(80) NOT NULL DEFAULT 'general', title VARCHAR(200) NOT NULL, message TEXT NOT NULL,
+  data JSONB NOT NULL DEFAULT '{}'::jsonb, read_at TIMESTAMPTZ, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_created ON notifications(user_id, created_at DESC);

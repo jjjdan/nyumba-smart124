@@ -60,6 +60,8 @@ export async function register(payload: {
   password: string;
   role: 'landlord' | 'tenant';
   landlordCode?: string;
+  termsAccepted: boolean;
+  termsVersion: string;
 }): Promise<AuthResponse> {
   const res = requireAuthResponse(
     await api.post<AuthResponse>('/auth/register', payload, { skipAuth: true })

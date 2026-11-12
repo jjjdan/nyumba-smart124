@@ -55,6 +55,7 @@ import * as paymentsApi from './api/payments';
 import * as complaintsApi from './api/complaints';
 import * as messagesApi from './api/messages';
 import * as adminApi from './api/admin';
+import FeedbackSection from './components/FeedbackSection';
 
 // Default pricing tiers shown before the real values load from the
 // backend (admin can change these via /api/admin/tiers).
@@ -166,6 +167,7 @@ export default function App() {
   const [authPhoneInput, setAuthPhoneInput] = useState<string>('+256 7');
   const [authNameInput, setAuthNameInput] = useState<string>('');
   const [authLandlordCodeInput, setAuthLandlordCodeInput] = useState<string>('');
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const [showPassRaw, setShowPassRaw] = useState<boolean>(false);
   const [authBusy, setAuthBusy] = useState<boolean>(false);
 
@@ -397,6 +399,11 @@ export default function App() {
           setAuthBusy(false);
           return;
         }
+        if (!termsAccepted) {
+          showShortToast('Please accept the Terms and Conditions to continue.');
+          setAuthBusy(false);
+          return;
+        }
 
         const profile = await register({
           name: authNameInput.trim(),
@@ -405,6 +412,8 @@ export default function App() {
           password: authPassInput,
           role: selectedAuthRole === 'admin' ? 'landlord' : selectedAuthRole,
           landlordCode: selectedAuthRole === 'tenant' ? authLandlordCodeInput.toUpperCase().trim() : undefined,
+          termsAccepted: true,
+          termsVersion: '2026-11-12',
         });
 
         setActiveView(profile.role);
@@ -421,6 +430,7 @@ export default function App() {
       setAuthNameInput('');
       setAuthPhoneInput('+256 7');
       setAuthLandlordCodeInput('');
+      setTermsAccepted(false);
 
     } catch (err) {
       const msg = describeError(err);
@@ -1368,6 +1378,18 @@ export default function App() {
                     )}
                   </div>
 
+                  {authMode === 'signup' && (
+                    <label className="flex items-start gap-2 text-[10px] text-neutral-400">
+                      <input
+                        type="checkbox"
+                        checked={termsAccepted}
+                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                        className="mt-0.5 accent-indigo-500"
+                      />
+                      <span>I agree to the Nyumba Smart Terms and Conditions and Privacy Policy.</span>
+                    </label>
+                  )}
+
                   <button 
                     type="submit"
                     disabled={authBusy}
@@ -1471,6 +1493,12 @@ export default function App() {
                 </button>
               </div>
             )
+          )}
+
+          {currentUser && activeView !== 'landing' && activeView !== 'admin' && (
+            <div className="mb-6">
+              <FeedbackSection />
+            </div>
           )}
 
           {activeView === 'landlord' && (
