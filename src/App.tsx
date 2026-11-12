@@ -393,7 +393,7 @@ export default function App() {
           return;
         }
         if (selectedAuthRole === 'tenant' && !authLandlordCodeInput.trim()) {
-          showShortToast('Please enter the landlord connect code given to you.');
+          showShortToast('Please enter the unit invite code given to you by your landlord.');
           setAuthBusy(false);
           return;
         }
@@ -1325,7 +1325,7 @@ export default function App() {
                   {selectedAuthRole === 'tenant' && (
                     <div className="space-y-1 p-2 rounded-xl bg-amber-500/[0.03] border border-amber-500/10">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-[9px] uppercase tracking-wider font-bold text-amber-300 block">Landlord Connect Code</label>
+                        <label className="text-[9px] uppercase tracking-wider font-bold text-amber-300 block">Unit Invite Code</label>
                         <span className="text-[8px] text-gray-500">Provided by landlord</span>
                       </div>
                       <input 
@@ -1333,7 +1333,7 @@ export default function App() {
                         required
                         value={authLandlordCodeInput}
                         onChange={(e) => setAuthLandlordCodeInput(e.target.value)}
-                        placeholder="e.g. LL-KARUMA"
+                        placeholder="e.g. UNIT-AB12CD34"
                         className="w-full bg-neutral-950 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-amber-200 focus:outline-none focus:border-amber-400 uppercase font-mono font-bold tracking-wider"
                         id="auth-landlord-code-input"
                       />
@@ -1745,6 +1745,7 @@ export default function App() {
                                   <h4 className="font-extrabold text-white text-[12.5px]">{p.name}</h4>
                                   <p className="text-[10px] text-neutral-400">{p.address}</p>
                                   <p className="text-[10px] text-indigo-300 mt-1 font-medium">Tenant: {p.tenantName || 'None'} • {p.tenantPhone}</p>
+                                  <p className="text-[10px] text-amber-300 mt-1 font-mono font-bold">Unit invite: {p.unitCode}</p>
                                 </div>
                                 <div className="text-right">
                                   <span className="font-mono font-bold text-white block">Shs {p.monthlyRent.toLocaleString()}</span>
@@ -2023,7 +2024,7 @@ export default function App() {
                         <div>
                           <span className="font-bold text-white block text-[12px]">{tenantRentedProperty.name}</span>
                           <span className="block text-[10px] text-neutral-400">{tenantRentedProperty.address}</span>
-                          <span className="block text-[10px] text-indigo-400 mt-1 font-semibold">Landlord Connection Code: <strong className="font-mono text-white tracking-wider font-extrabold">{tenantRentedProperty.landlordCode}</strong></span>
+                          <span className="block text-[10px] text-indigo-400 mt-1 font-semibold">Unit Invite Code: <strong className="font-mono text-white tracking-wider font-extrabold">{tenantRentedProperty.unitCode}</strong></span>
                         </div>
                       </div>
                     )}

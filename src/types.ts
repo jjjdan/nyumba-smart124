@@ -4,7 +4,8 @@ export interface UserProfile {
   email: string;
   phone: string;
   role: 'landlord' | 'tenant' | 'admin';
-  landlordCode?: string; // Generated for landlords, entered by tenants
+  landlordCode?: string; // Landlord connection code
+  unitCode?: string; // Unit-specific invite code
   propertyId?: string; // Rented unit ID
   unitsCount?: number; // Estimated units for subscription calculations
   subscriptionTier?: string; // e.g. "Free", "Standard", "Premium"
@@ -20,6 +21,7 @@ export interface Property {
   monthlyRent: number; // in UGX
   status: 'Paid' | 'Overdue' | 'Partially Paid';
   landlordCode: string; // Belongs to this landlord
+  unitCode: string; // Identifies this unit for tenant registration
 }
 
 export interface FinancialRecord {

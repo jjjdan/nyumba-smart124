@@ -83,6 +83,20 @@ CREATE TABLE IF NOT EXISTS properties (
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- A landlord code identifies the landlord; a unit invite code identifies one
+-- specific property. Existing installations are backfilled during startup.
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS unit_code VARCHAR(24);
+UPDATE properties
+SET unit_code = 'UNIT-' || UPPER(SUBSTRING(REPLACE(id::text, '-', '') FROM 1 FOR 8))
+WHERE unit_code IS NULL;
+UPDATE properties p
+SET tenant_user_id = t.user_id
+FROM tenants t
+WHERE t.property_id = p.id
+  AND p.tenant_user_id IS NULL;
+ALTER TABLE properties ALTER COLUMN unit_code SET NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_properties_unit_code ON properties(unit_code);
 CREATE INDEX IF NOT EXISTS idx_properties_landlord_id ON properties(landlord_id);
 CREATE INDEX IF NOT EXISTS idx_properties_landlord_code ON properties(landlord_code);
 CREATE INDEX IF NOT EXISTS idx_properties_status ON properties(status);

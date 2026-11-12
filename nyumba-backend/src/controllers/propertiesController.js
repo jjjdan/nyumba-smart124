@@ -1,5 +1,6 @@
 const { query, withTransaction } = require('../config/database');
 const { createError } = require('../middleware/errorHandler');
+const { v4: uuidv4 } = require('uuid');
 
 /**
  * GET /api/properties
@@ -114,11 +115,12 @@ async function createProperty(req, res, next) {
       // Insert property
       const propRes = await client.query(
         `INSERT INTO properties
-           (landlord_id, landlord_code, name, address, tenant_name, tenant_phone, monthly_rent, status)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'Overdue')
+           (landlord_id, landlord_code, unit_code, name, address, tenant_name, tenant_phone, monthly_rent, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'Overdue')
          RETURNING *`,
         [
           landlord.id, landlord.landlord_code,
+          `UNIT-${uuidv4().replace(/-/g, '').slice(0, 8).toUpperCase()}`,
           name, address,
           tenantName || null,
           (tenantPhone || '').replace(/\s+/g, '') || null,

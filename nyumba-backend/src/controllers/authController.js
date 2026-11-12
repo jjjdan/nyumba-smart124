@@ -102,12 +102,30 @@ async function register(req, res, next) {
         };
 
       } else if (role === 'tenant') {
-        // 2b. Validate landlord code
+        // 2b. Validate a unit invite code. A landlord code is accepted only
+        // for the unambiguous legacy case of one active unassigned unit.
         const landlordRes = await client.query(
-          `SELECT l.id, l.landlord_code, p.id as property_id
+          `SELECT l.id, l.landlord_code, p.id as property_id, p.unit_code
            FROM landlords l
-           LEFT JOIN properties p ON p.landlord_code = l.landlord_code AND p.is_active = TRUE
-           WHERE l.landlord_code = $1
+           LEFT JOIN properties p
+             ON p.landlord_code = l.landlord_code
+            AND p.is_active = TRUE
+            AND p.tenant_user_id IS NULL
+            AND (
+              p.unit_code = $1
+              OR (
+                l.landlord_code = $1
+                AND NOT EXISTS (
+                  SELECT 1 FROM properties p2
+                  WHERE p2.landlord_code = l.landlord_code
+                    AND p2.is_active = TRUE
+                    AND p2.tenant_user_id IS NULL
+                    AND p2.id <> p.id
+                )
+              )
+            )
+           WHERE l.landlord_code = $1 OR p.unit_code = $1
+           ORDER BY CASE WHEN p.unit_code = $1 THEN 0 ELSE 1 END
            LIMIT 1`,
           [(landlordCode || '').toUpperCase().trim()]
         );
@@ -117,6 +135,9 @@ async function register(req, res, next) {
         }
 
         const { landlord_code, property_id } = landlordRes.rows[0];
+        if (!property_id) {
+          throw createError('Use the unit invite code supplied by your landlord; this landlord has multiple units.', 409);
+        }
 
         const tenantRes = await client.query(
           `INSERT INTO tenants (user_id, landlord_code, property_id)
@@ -124,6 +145,16 @@ async function register(req, res, next) {
            RETURNING id, landlord_code, property_id`,
           [user.id, landlord_code, property_id || null]
         );
+
+        const propertyLink = await client.query(
+          `UPDATE properties
+           SET tenant_user_id = $1
+           WHERE id = $2 AND tenant_user_id IS NULL`,
+          [user.id, property_id]
+        );
+        if (!propertyLink.rowCount) {
+          throw createError('This unit has already been linked to another tenant. Ask your landlord for a new unit invite code.', 409);
+        }
 
         profileData = {
           landlordCode: tenantRes.rows[0].landlord_code,

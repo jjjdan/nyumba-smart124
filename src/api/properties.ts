@@ -14,6 +14,7 @@ export function mapProperty(row: any): Property {
     monthlyRent: Number(row.monthly_rent),
     status: row.status,
     landlordCode: row.landlord_code,
+    unitCode: row.unit_code,
   };
 }
 

@@ -29,6 +29,33 @@ async function getLandlordByUserId(userId) {
   return res.rows[0] || null;
 }
 
+async function refreshPropertyRentStatus(client, propertyId) {
+  if (!propertyId) return;
+
+  const result = await client.query(
+    `SELECT p.monthly_rent,
+            COALESCE(SUM(fr.amount) FILTER (
+              WHERE fr.status = 'Cleared'
+                AND fr.type = 'Rent Payment'
+                AND fr.created_at >= DATE_TRUNC('month', CURRENT_DATE)
+                AND fr.created_at < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'
+            ), 0) AS paid_this_month
+     FROM properties p
+     LEFT JOIN financial_records fr ON fr.property_id = p.id
+     WHERE p.id = $1
+     GROUP BY p.id`,
+    [propertyId]
+  );
+  if (!result.rows.length) return;
+
+  const { monthly_rent: monthlyRent, paid_this_month: paidThisMonth } = result.rows[0];
+  const paid = Number(paidThisMonth);
+  const rent = Number(monthlyRent);
+  const status = paid >= rent ? 'Paid' : paid > 0 ? 'Partially Paid' : 'Overdue';
+
+  await client.query('UPDATE properties SET status = $1 WHERE id = $2', [status, propertyId]);
+}
+
 /**
  * Resolve which Paystack secret to use:
  *  - Rent Payment → landlord's encrypted key
@@ -78,12 +105,7 @@ async function finalizeSuccessfulPayment(client, record, gatewayPayload) {
     [JSON.stringify(gatewayPayload || {}), record.id]
   );
 
-  if (record.property_id) {
-    await client.query(
-      `UPDATE properties SET status = 'Paid' WHERE id = $1`,
-      [record.property_id]
-    );
-  }
+  await refreshPropertyRentStatus(client, record.property_id);
 
   let receiptPdf = null;
   try {
@@ -642,7 +664,9 @@ async function syncOfflinePayments(req, res, next) {
         );
 
         if (rec.propertyId && rec.type === 'Rent Payment') {
-          await query(`UPDATE properties SET status = 'Paid' WHERE id = $1`, [rec.propertyId]);
+          await withTransaction(async (client) => {
+            await refreshPropertyRentStatus(client, rec.propertyId);
+          });
         }
 
         results.synced.push({ localId: rec.localId, receiptNo });
