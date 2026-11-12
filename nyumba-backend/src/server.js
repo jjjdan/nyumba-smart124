@@ -17,6 +17,8 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   'https://nyumba-smart124.vercel.app',
   'http://localhost:5173',
+  'https://localhost',
+  'capacitor://localhost',
 ].filter(Boolean);
 
 // ─── Security & CORS ───────────────────────────────────────────────────────

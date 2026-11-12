@@ -19,6 +19,19 @@ export interface AuthResponse {
   };
 }
 
+function requireAuthResponse(res: AuthResponse | null | undefined): AuthResponse {
+  if (
+    !res ||
+    typeof res.accessToken !== 'string' ||
+    typeof res.refreshToken !== 'string' ||
+    !res.user ||
+    !res.profile
+  ) {
+    throw new Error('The server returned an invalid login response. Please try again.');
+  }
+  return res;
+}
+
 /**
  * Converts the backend's flat user+profile response into the frontend's
  * combined UserProfile shape used throughout the UI.
@@ -48,13 +61,17 @@ export async function register(payload: {
   role: 'landlord' | 'tenant';
   landlordCode?: string;
 }): Promise<AuthResponse> {
-  const res = await api.post<AuthResponse>('/auth/register', payload, { skipAuth: true });
+  const res = requireAuthResponse(
+    await api.post<AuthResponse>('/auth/register', payload, { skipAuth: true })
+  );
   setTokens(res.accessToken, res.refreshToken);
   return res;
 }
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
-  const res = await api.post<AuthResponse>('/auth/login', { email, password }, { skipAuth: true });
+  const res = requireAuthResponse(
+    await api.post<AuthResponse>('/auth/login', { email, password }, { skipAuth: true })
+  );
   setTokens(res.accessToken, res.refreshToken);
   return res;
 }
