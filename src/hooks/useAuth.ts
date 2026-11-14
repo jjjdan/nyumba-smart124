@@ -67,6 +67,7 @@ export function useAuth(): UseAuthResult {
   const register = useCallback(async (payload: {
     name: string; email: string; phone: string; password: string;
     role: 'landlord' | 'tenant'; landlordCode?: string;
+    termsAccepted: boolean; termsVersion: string;
   }) => {
     const res = await authApi.register(payload);
     const profile = authApi.toUserProfile(res);

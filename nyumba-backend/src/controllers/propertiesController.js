@@ -230,6 +230,17 @@ async function deleteProperty(req, res, next) {
 
     await withTransaction(async (client) => {
       await client.query(
+        `UPDATE tenants
+         SET property_id = NULL, is_archived = TRUE, archived_at = NOW(),
+             archived_by = $2, unlinked_at = NOW(), unlinked_by = $2
+         WHERE property_id = $1`,
+        [id, user.id]
+      );
+      await client.query(
+        `UPDATE properties SET tenant_user_id = NULL WHERE id = $1`,
+        [id]
+      );
+      await client.query(
         `UPDATE properties SET is_active = FALSE WHERE id = $1`,
         [id]
       );

@@ -394,12 +394,12 @@ export default function App() {
           setAuthBusy(false);
           return;
         }
-        if (selectedAuthRole === 'tenant' && !authLandlordCodeInput.trim()) {
+        if (authMode === 'signup' && selectedAuthRole === 'tenant' && !authLandlordCodeInput.trim()) {
           showShortToast('Please enter the unit invite code given to you by your landlord.');
           setAuthBusy(false);
           return;
         }
-        if (!termsAccepted) {
+        if (authMode === 'signup' && !termsAccepted) {
           showShortToast('Please accept the Terms and Conditions to continue.');
           setAuthBusy(false);
           return;
@@ -926,6 +926,23 @@ export default function App() {
     }
   };
 
+  const handleLandlordDeleteUnit = async (p: Property) => {
+    if (!wifiConnected) {
+      showShortToast('Cannot delete a unit while offline.');
+      return;
+    }
+    if (!window.confirm(`Archive and remove "${p.name}"? Payment history will be preserved.`)) return;
+    try {
+      await propertiesApi.deleteProperty(p.id);
+      await refreshData();
+      showShortToast(`${p.name} was removed. Its records were preserved.`);
+    } catch (err) {
+      const msg = describeError(err);
+      showShortToast(msg);
+      pushTrace(`Unit removal error: ${msg}`, 'warn');
+    }
+  };
+
   // ==========================================
   // SUBSCRIPTION MANAGEMENT (BILLING TO LANDLORD)
   // ==========================================
@@ -1062,7 +1079,7 @@ export default function App() {
 
   // Tenant views — backend already returns only the tenant's own unit/records
   const tenantRentedProperty = currentUser?.role === 'tenant'
-    ? properties[0]
+    ? properties.find(p => p.id === currentUser.propertyId) || properties[0]
     : landlordProperties[0]; // admin preview fallback
 
   const tenantFinanceLogs = currentUser?.role === 'tenant'
@@ -1332,7 +1349,7 @@ export default function App() {
                     </div>
                   )}
 
-                  {selectedAuthRole === 'tenant' && (
+                  {authMode === 'signup' && selectedAuthRole === 'tenant' && (
                     <div className="space-y-1 p-2 rounded-xl bg-amber-500/[0.03] border border-amber-500/10">
                       <div className="flex justify-between items-center mb-1">
                         <label className="text-[9px] uppercase tracking-wider font-bold text-amber-300 block">Unit Invite Code</label>
@@ -1798,6 +1815,12 @@ export default function App() {
                                   </button>
                                 </div>
                               )}
+                              <button
+                                onClick={() => handleLandlordDeleteUnit(p)}
+                                className="w-full py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-300 font-bold text-[9.5px] transition-all cursor-pointer"
+                              >
+                                <Trash2 className="w-3 h-3 inline mr-1" /> Remove Unit
+                              </button>
                             </div>
                           ))
                         )}
