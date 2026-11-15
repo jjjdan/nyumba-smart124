@@ -18,6 +18,8 @@ import {
   Sparkles,
   ArrowRight,
   Lock,
+  Menu,
+  X,
   Mail,
   Phone,
   MapPin,
@@ -185,6 +187,7 @@ export default function App() {
   // App UI state
   const [landlordActiveTab, setLandlordActiveTab] = useState<'units' | 'cash' | 'tickets' | 'billing'>('units');
   const [tenantActiveTab, setTenantActiveTab] = useState<'rent' | 'history' | 'ticket'>('rent');
+  const [navigatorOpen, setNavigatorOpen] = useState(false);
 
   // Push notifications permission state
   const [notificationPermission, setNotificationPermission] = useState<'prompt' | 'granted' | 'denied'>('prompt');
@@ -1194,7 +1197,7 @@ export default function App() {
           </div>
 
           {/* App status bar — wifi toggle is functional everywhere; clock/signal/battery are decorative phone-mockup chrome, desktop only */}
-          <div className="h-8 w-full flex justify-end lg:justify-between items-end px-4 lg:px-7 mt-3 mb-1 text-[11px] font-semibold tracking-tight text-white/90 select-none z-30">
+          <div className="hidden h-8 w-full lg:flex justify-between items-end px-4 lg:px-7 mt-3 mb-1 text-[11px] font-semibold tracking-tight text-white/90 select-none z-30">
             <div className="hidden lg:flex items-center gap-1">
               <span>{currentClockTime}</span>
               <span className="text-[7.5px] bg-indigo-500/20 text-indigo-300 px-1 rounded font-mono font-bold uppercase">UG</span>
@@ -1276,7 +1279,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => { setSelectedAuthRole('admin'); setAuthMode('login'); }}
-                      className={`py-1.5 rounded-lg text-[9px] font-bold border transition-all cursor-pointer ${
+                      className={`hidden py-1.5 rounded-lg text-[9px] font-bold border transition-all cursor-pointer ${
                         selectedAuthRole === 'admin'
                           ? 'bg-[#ef4444]/15 border-[#ef4444]/60 text-[#ef4444]'
                           : 'bg-neutral-900/60 border-white/5 text-gray-400 hover:bg-neutral-800'
@@ -1427,7 +1430,7 @@ export default function App() {
               <div className="text-center pt-3 border-t border-white/[0.04] flex items-center justify-center">
                 <button 
                   onClick={() => { setActiveView('landing'); }}
-                  className="text-[10px] text-gray-400 hover:underline cursor-pointer"
+                  className="hidden text-[10px] text-gray-400 hover:underline cursor-pointer"
                 >
                   ← Back to Home
                 </button>
@@ -1513,6 +1516,40 @@ export default function App() {
           )}
 
           {currentUser && activeView !== 'landing' && activeView !== 'admin' && (
+            <div className="relative mb-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setNavigatorOpen(value => !value)}
+                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[#121217] px-3 py-2 text-xs font-bold text-white"
+                aria-expanded={navigatorOpen}
+                aria-label="Open navigation menu"
+              >
+                {navigatorOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                Menu
+              </button>
+              {navigatorOpen && (
+                <div className="absolute right-0 top-12 z-50 w-56 rounded-2xl border border-white/10 bg-[#121217] p-2 shadow-2xl">
+                  <p className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-neutral-500">Navigate</p>
+                  {(currentUser.role === 'landlord'
+                    ? [['units', 'Rental units'], ['cash', 'Payments & receipts'], ['tickets', 'Maintenance'], ['billing', 'Notifications']]
+                    : [['rent', 'Make a payment'], ['history', 'Payment history & receipts'], ['ticket', 'Maintenance & feedback']]
+                  ).map(([key, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => {
+                        if (currentUser.role === 'landlord') setLandlordActiveTab(key as typeof landlordActiveTab);
+                        else setTenantActiveTab(key as typeof tenantActiveTab);
+                        setNavigatorOpen(false);
+                      }}
+                      className="block w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-neutral-300 hover:bg-indigo-500/15 hover:text-white"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="mb-6">
               <FeedbackSection />
             </div>
@@ -1712,7 +1749,7 @@ export default function App() {
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
                   
                   {/* Left Column: Properties Management Desk */}
-                  <div className="space-y-4">
+                  <div className={`space-y-4 ${landlordActiveTab === 'units' ? '' : 'hidden'}`}>
                     
                     {/* Register room unit form */}
                     <form onSubmit={handleLandlordCreateProperty} className="p-4 rounded-xl bg-[#121217] border border-white/5 space-y-3">
@@ -1879,7 +1916,7 @@ export default function App() {
                   </div>
 
                   {/* Right Column: Complaints Desk & Finance Ledger */}
-                  <div className="space-y-4">
+                  <div className={`space-y-4 ${landlordActiveTab === 'units' ? 'hidden' : ''}`}>
                     
                     {/* Landlord's Actionable Complaints List */}
                     <div className="space-y-2">
@@ -2003,7 +2040,7 @@ export default function App() {
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
                   
                   {/* Left Column: Digital Checkout Billing Kiosk */}
-                  <div className="space-y-4">
+                  <div className={`space-y-4 ${tenantActiveTab === 'ticket' ? 'hidden' : ''}`}>
                     
                     {tenantRentedProperty && (
                       <div className="p-4 rounded-xl bg-gradient-to-br from-[#1E1914] to-[#121217] border border-amber-500/10 space-y-3">
@@ -2125,7 +2162,7 @@ export default function App() {
                   </section>
 
                   {/* Right Column: Complaints Desk Form & History */}
-                  <div className="space-y-4">
+                  <div className={`space-y-4 ${tenantActiveTab === 'ticket' ? '' : 'hidden'}`}>
                     
                     {/* Submit repair form */}
                     <form onSubmit={handleTenantRaiseComplaint} className="p-4 rounded-xl bg-[#121217] border border-white/5 space-y-3">

@@ -40,7 +40,7 @@ export default function LandingPage({ tiers, onStartAuth, onOpenAdminPortal }: L
 
           <button 
             onClick={onOpenAdminPortal}
-            className="text-[10px] bg-[#16161D] hover:bg-neutral-800 text-gray-400 font-semibold px-2.5 py-1.5 rounded-lg border border-white/5 flex items-center gap-1 transition-all cursor-pointer"
+            className="hidden text-[10px] bg-[#16161D] hover:bg-neutral-800 text-gray-400 font-semibold px-2.5 py-1.5 rounded-lg border border-white/5 items-center gap-1 transition-all cursor-pointer"
           >
             <Key className="w-3 h-3 text-indigo-400" />
             <span>Admin Login</span>
